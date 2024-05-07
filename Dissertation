@@ -1,0 +1,1354 @@
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+
+import os
+
+
+# Change work directory
+# path = r"C:\Users\pinhosl3\OneDrive - London South Bank University\Desktop\Ian_test"
+path = r"C:\Users\ianny\OneDrive\Desktop\Thesis\d13, t13r"
+os.chdir(path)
+
+# VERY IMPORTANT
+session.journalOptions.setValues(replayGeometry=COORDINATE, recoverGeometry=COORDINATE)
+
+bolt_radius = 13.0 #mm
+plate_radius = bolt_radius + 1.0
+column_radius = bolt_radius + 1.0
+bolt_cap_radius = bolt_radius + 4.0
+radius_change = bolt_radius - 8.0
+radius_change2 = bolt_radius - 1.0
+plate_thickness = 13.0 #mm 
+bolt_thickness = 25.0 + plate_thickness - 10.0
+plate_change = plate_thickness - 10.0
+
+#This creates a new model from scratch
+Mdb()
+
+
+#building the column section
+mdb.models['Model-1'].ConstrainedSketch(name='__profile__', sheetSize=200.0)
+mdb.models['Model-1'].sketches['__profile__'].rectangle(point1=(-100.0, 85.0), 
+    point2=(100.0, 100.0))
+mdb.models['Model-1'].sketches['__profile__'].rectangle(point1=(-100.0, -85.0), 
+    point2=(100.0, -100.0))
+mdb.models['Model-1'].sketches['__profile__'].rectangle(point1=(-5.0, -85.0), 
+    point2=(5.0, 85.0))
+    
+mdb.models['Model-1'].sketches['__profile__'].autoTrimCurve(curve1=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((90.0, 
+    -85.0), ), point1=(2.0042781829834, -80.7026977539063))
+mdb.models['Model-1'].sketches['__profile__'].autoTrimCurve(curve1=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((0.0, -85.0), 
+    ), point1=(-0.0775547921657562, -82.7748031616211))
+mdb.models['Model-1'].sketches['__profile__'].autoTrimCurve(curve1=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((90.0, 85.0), 
+    ), point1=(-0.598016858100891, 84.0295562744141))
+mdb.models['Model-1'].sketches['__profile__'].autoTrimCurve(curve1=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((0.0, 85.0), 
+    ), point1=(-0.598016858100891, 87.1377105712891))
+    
+#
+
+mdb.models['Model-1'].sketches['__profile__'].FilletByRadius(curve1=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-52.5, 
+    -85.0), ), curve2=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-5.0, 0.0), 
+    ), nearPoint1=(-17.2527027130127, -83.8108520507813), nearPoint2=(
+    -7.88444709777832, -76.5584945678711), radius=10.0)
+mdb.models['Model-1'].sketches['__profile__'].FilletByRadius(curve1=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((52.5, 
+    -85.0), ), curve2=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((5.0, 0.0), )
+    , nearPoint1=(20.7408046722412, -83.2928314208984), nearPoint2=(
+    6.16794395446777, -70.3421783447266), radius=10.0)
+mdb.models['Model-1'].sketches['__profile__'].FilletByRadius(curve1=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((52.5, 85.0), 
+    ), curve2=mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((
+    5.0, 5.0), ), nearPoint1=(16.056676864624, 88.1737518310547), nearPoint2=(
+    4.6065731048584, 80.4033660888672), radius=10.0)
+mdb.models['Model-1'].sketches['__profile__'].FilletByRadius(curve1=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-5.0, 5.0), 
+    ), curve2=mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((
+    -52.5, 85.0), ), nearPoint1=(-5.8026065826416, 77.2952117919922), 
+    nearPoint2=(-12.0481128692627, 85.5836334228516), radius=10.0)
+
+
+mdb.models['Model-1'].Part(dimensionality=THREE_D, name='Column', type=
+    DEFORMABLE_BODY)
+mdb.models['Model-1'].parts['Column'].BaseSolidExtrude(depth=1500.0, sketch=
+    mdb.models['Model-1'].sketches['__profile__'])
+del mdb.models['Model-1'].sketches['__profile__']
+
+
+#build the beam
+mdb.models['Model-1'].ConstrainedSketch(name='__profile__', sheetSize=280.0)
+mdb.models['Model-1'].sketches['__profile__'].Line(point1=(-60.0, 120.0), 
+    point2=(60.0, 120.0))
+mdb.models['Model-1'].sketches['__profile__'].HorizontalConstraint(
+    addUndoState=False, entity=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((0.0, 120.0), 
+    ))
+mdb.models['Model-1'].sketches['__profile__'].Line(point1=(-60.0, -120.0), 
+    point2=(-60.0, 120.0))
+mdb.models['Model-1'].sketches['__profile__'].VerticalConstraint(addUndoState=
+    False, entity=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-60.0, 0.0), 
+    ))
+mdb.models['Model-1'].sketches['__profile__'].undo()
+mdb.models['Model-1'].sketches['__profile__'].Line(point1=(-60.0, -120.0), 
+    point2=(60.0, -120.0))
+mdb.models['Model-1'].sketches['__profile__'].HorizontalConstraint(
+    addUndoState=False, entity=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((0.0, 
+    -120.0), ))
+mdb.models['Model-1'].sketches['__profile__'].Line(point1=(0.0, 120.0), point2=
+    (0.0, -120.0))
+mdb.models['Model-1'].sketches['__profile__'].VerticalConstraint(addUndoState=
+    False, entity=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((0.0, 0.0), 
+    ))
+mdb.models['Model-1'].sketches['__profile__'].PerpendicularConstraint(
+    addUndoState=False, entity1=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-54.0, 
+    120.0), ), entity2=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((0.0, 0.0), 
+    ))
+mdb.models['Model-1'].sketches['__profile__'].CoincidentConstraint(
+    addUndoState=False, entity1=
+    mdb.models['Model-1'].sketches['__profile__'].vertices.findAt((0.0, 120.0), 
+    ), entity2=mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((
+    -54.0, 120.0), ))
+mdb.models['Model-1'].sketches['__profile__'].EqualDistanceConstraint(
+    addUndoState=False, entity1=
+    mdb.models['Model-1'].sketches['__profile__'].vertices.findAt((-60.0, 
+    120.0), ), entity2=
+    mdb.models['Model-1'].sketches['__profile__'].vertices.findAt((60.0, 
+    120.0), ), midpoint=
+    mdb.models['Model-1'].sketches['__profile__'].vertices.findAt((0.0, 120.0), 
+    ))
+mdb.models['Model-1'].sketches['__profile__'].CoincidentConstraint(
+    addUndoState=False, entity1=
+    mdb.models['Model-1'].sketches['__profile__'].vertices.findAt((0.0, 
+    -120.0), ), entity2=
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-54.0, 
+    -120.0), ))
+mdb.models['Model-1'].sketches['__profile__'].EqualDistanceConstraint(
+    addUndoState=False, entity1=
+    mdb.models['Model-1'].sketches['__profile__'].vertices.findAt((-60.0, 
+    -120.0), ), entity2=
+    mdb.models['Model-1'].sketches['__profile__'].vertices.findAt((60.0, 
+    -120.0), ), midpoint=
+    mdb.models['Model-1'].sketches['__profile__'].vertices.findAt((0.0, 
+    -120.0), ))
+mdb.models['Model-1'].Part(dimensionality=THREE_D, name='Beam', type=
+    DEFORMABLE_BODY)
+mdb.models['Model-1'].parts['Beam'].BaseShellExtrude(depth=500.0, sketch=
+    mdb.models['Model-1'].sketches['__profile__'])
+del mdb.models['Model-1'].sketches['__profile__']
+
+
+#build the plate and holes
+mdb.models['Model-1'].ConstrainedSketch(name='__profile__', sheetSize=280.0)
+mdb.models['Model-1'].sketches['__profile__'].rectangle(point1=(-100.0, -140.0)
+    , point2=(100.0, 140.0))
+    
+mdb.models['Model-1'].sketches['__profile__'].CircleByCenterPerimeter(center=(
+    -50.0, 70.0), point1=(-50, 70+plate_radius))
+# mdb.models['Model-1'].sketches['__profile__'].RadialDimension(curve=
+    # mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-46.25, 
+    # 81.25), ), radius=plate_radius, textPoint=(-19.2819671630859, 43.0539169311523))
+# mdb.models['Model-1'].sketches['__profile__'].delete(objectList=(
+    # mdb.models['Model-1'].sketches['__profile__'].dimensions[0], ))
+mdb.models['Model-1'].sketches['__profile__'].linearPattern(angle1=0.0, angle2=
+    270.0, geomList=(
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-50, 
+    70 + plate_radius), ), ), number1=2, number2=2, spacing1=100.0, spacing2=140.0, 
+    vertexList=())
+#change spacing?
+mdb.models['Model-1'].Part(dimensionality=THREE_D, name='End-Plate', type=
+    DEFORMABLE_BODY)
+mdb.models['Model-1'].parts['End-Plate'].BaseSolidExtrude(depth=plate_thickness, sketch=
+    mdb.models['Model-1'].sketches['__profile__'])
+del mdb.models['Model-1'].sketches['__profile__']
+
+#building the bolts
+mdb.models['Model-1'].ConstrainedSketch(name='__profile__', sheetSize=24.0)
+mdb.models['Model-1'].sketches['__profile__'].CircleByCenterPerimeter(center=(
+    0.0, 0.0), point1=(0, 0+bolt_radius))
+# mdb.models['Model-1'].sketches['__profile__'].RadialDimension(curve=
+    # mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((2.0, 7.625), 
+    # ), radius=bolt_radius, textPoint=(9.00936603546143, -8.44891548156738))
+mdb.models['Model-1'].Part(dimensionality=THREE_D, name='Bolt', type=
+    DEFORMABLE_BODY)
+mdb.models['Model-1'].parts['Bolt'].BaseSolidExtrude(depth=bolt_thickness, sketch=
+    mdb.models['Model-1'].sketches['__profile__'])
+del mdb.models['Model-1'].sketches['__profile__']
+mdb.models['Model-1'].ConstrainedSketch(gridSpacing=1.68, name='__profile__', 
+    sheetSize=67.36, transform=
+    mdb.models['Model-1'].parts['Bolt'].MakeSketchTransform(
+    sketchPlane=mdb.models['Model-1'].parts['Bolt'].faces.findAt((0, 
+    0, bolt_thickness), ), sketchPlaneSide=SIDE1, 
+    sketchUpEdge=mdb.models['Model-1'].parts['Bolt'].edges.findAt((-bolt_radius, 
+    0, bolt_thickness), ), sketchOrientation=RIGHT, origin=(0.0, 0.0, bolt_thickness)))
+mdb.models['Model-1'].parts['Bolt'].projectReferencesOntoSketch(filter=
+    COPLANAR_EDGES, sketch=mdb.models['Model-1'].sketches['__profile__'])
+mdb.models['Model-1'].sketches['__profile__'].CircleByCenterPerimeter(center=(
+    0.0, 0.0), point1=(bolt_cap_radius, 0))
+# mdb.models['Model-1'].sketches['__profile__'].RadialDimension(curve=
+    # mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-8.82, 
+    # 4.62), ), radius=bolt_cap_radius, textPoint=(10.3362083435059, -9.75779342651367))
+mdb.models['Model-1'].parts['Bolt'].SolidExtrude(depth=10.0, 
+    flipExtrudeDirection=OFF, sketch=
+    mdb.models['Model-1'].sketches['__profile__'], sketchOrientation=RIGHT, 
+    sketchPlane=mdb.models['Model-1'].parts['Bolt'].faces.findAt((-0.040644, 
+    -7.832338, bolt_thickness), ), sketchPlaneSide=SIDE1, sketchUpEdge=
+    mdb.models['Model-1'].parts['Bolt'].edges.findAt((-bolt_radius, 0, 
+    bolt_thickness), ))
+del mdb.models['Model-1'].sketches['__profile__']
+mdb.models['Model-1'].ConstrainedSketch(gridSpacing=1.68, name='__profile__', 
+    sheetSize=67.36, transform=
+    mdb.models['Model-1'].parts['Bolt'].MakeSketchTransform(
+    sketchPlane=mdb.models['Model-1'].parts['Bolt'].faces.findAt((0, 
+    0, 0.0), ), sketchPlaneSide=SIDE1, 
+    sketchUpEdge=mdb.models['Model-1'].parts['Bolt'].edges.findAt((bolt_radius, 
+    0, 0.0), ), sketchOrientation=RIGHT, origin=(0.0, 0.0, 0.0)))
+mdb.models['Model-1'].parts['Bolt'].projectReferencesOntoSketch(filter=
+    COPLANAR_EDGES, sketch=mdb.models['Model-1'].sketches['__profile__'])
+# mdb.models['Model-1'].sketches['__profile__'].CircleByCenterPerimeter(center=(
+    # 0.0, 0.0), point1=(9.66, 6.72))
+# mdb.models['Model-1'].sketches['__profile__'].undo()
+mdb.models['Model-1'].sketches['__profile__'].CircleByCenterPerimeter(center=(
+    0.0, 0.0), point1=(bolt_cap_radius, 0))
+# mdb.models['Model-1'].sketches['__profile__'].RadialDimension(curve=
+    # mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-11.34, 
+    # 10.5), ), radius=bolt_cap_radius, textPoint=(13.8403415679932, -13.9022798538208))
+mdb.models['Model-1'].parts['Bolt'].SolidExtrude(depth=10.0, 
+    flipExtrudeDirection=OFF, sketch=
+    mdb.models['Model-1'].sketches['__profile__'], sketchOrientation=RIGHT, 
+    sketchPlane=mdb.models['Model-1'].parts['Bolt'].faces.findAt((-2.54213, 
+    -1.145752, 0.0), ), sketchPlaneSide=SIDE1, sketchUpEdge=
+    mdb.models['Model-1'].parts['Bolt'].edges.findAt((bolt_radius, 0, 
+    0.0), ))
+del mdb.models['Model-1'].sketches['__profile__']
+
+#partitioning the bolt 
+# mdb.models['Model-1'].parts['Bolt'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['Bolt'].cells.findAt(((0, 0, 
+    # -10.0), )), point1=mdb.models['Model-1'].parts['Bolt'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Bolt'].edges.findAt((bolt_cap_radius, 0, 
+    # 35.0), ), CENTER), point2=
+    # mdb.models['Model-1'].parts['Bolt'].vertices.findAt((bolt_cap_radius, 0, 
+    # -10.0), ), point3=mdb.models['Model-1'].parts['Bolt'].vertices.findAt((
+    # bolt_cap_radius, 0, -10), ))
+    
+mdb.models['Model-1'].parts['Bolt'].DatumPlaneByPrincipalPlane(offset=0.0, 
+    principalPlane=XZPLANE)
+mdb.models['Model-1'].parts['Bolt'].PartitionCellByDatumPlane(cells=
+    mdb.models['Model-1'].parts['Bolt'].cells, datumPlane=
+    mdb.models['Model-1'].parts['Bolt'].datums[4])
+mdb.models['Model-1'].parts['Bolt'].DatumPlaneByPrincipalPlane(offset=0.0, 
+    principalPlane=YZPLANE)
+    
+
+mdb.models['Model-1'].parts['Bolt'].PartitionCellByDatumPlane(cells=
+    mdb.models['Model-1'].parts['Bolt'].cells, datumPlane=
+    mdb.models['Model-1'].parts['Bolt'].datums[6])
+   
+# mdb.models['Model-1'].parts['Bolt'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['Bolt'].cells.findAt(((0, 5, 
+    # -10.0), ), ((0, -5, -10.0), ), ), point1=
+    # mdb.models['Model-1'].parts['Bolt'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Bolt'].edges.findAt((bolt_cap_radius, 0.0, 
+    # -10.0), ), CENTER), point2=
+    # mdb.models['Model-1'].parts['Bolt'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Bolt'].edges.findAt((bolt_cap_radius, 0.0, 
+    # 35.0), ), MIDDLE), point3=
+    # mdb.models['Model-1'].parts['Bolt'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Bolt'].edges.findAt((bolt_cap_radius, 0.0, 
+    # -10), ), MIDDLE))
+    
+# # mdb.models['Model-1'].parts['Bolt'].PartitionCellByPlaneThreePoints(cells=
+    # # mdb.models['Model-1'].parts['Bolt'].cells.findAt(((10.753147, 1.380894, 
+    # # -10.0), ), ((-3.538409, -1.865386, -10.0), ), ), point1=
+    # # mdb.models['Model-1'].parts['Bolt'].InterestingPoint(
+    # # mdb.models['Model-1'].parts['Bolt'].edges.findAt((-11.991134, 0.461197, 
+    # # 35.0), ), CENTER), point2=
+    # # mdb.models['Model-1'].parts['Bolt'].InterestingPoint(
+    # # mdb.models['Model-1'].parts['Bolt'].edges.findAt((-11.991134, 0.461197, 
+    # # 35.0), ), MIDDLE), point3=
+    # # mdb.models['Model-1'].parts['Bolt'].InterestingPoint(
+    # # mdb.models['Model-1'].parts['Bolt'].edges.findAt((0.461197, 11.991134, 
+    # # 25.0), ), MIDDLE))
+# mdb.models['Model-1'].parts['Bolt'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['Bolt'].cells.findAt(((0, 5, 
+    # -10.0), ), ((0, -5, -10.0), ), ), point1=
+    # mdb.models['Model-1'].parts['Bolt'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Bolt'].edges.findAt((0.0, bolt_cap_radius, 
+    # -10.0), ), CENTER), point2=
+    # mdb.models['Model-1'].parts['Bolt'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Bolt'].edges.findAt((0.0, bolt_cap_radius, 
+    # 35.0), ), MIDDLE), point3=
+    # mdb.models['Model-1'].parts['Bolt'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Bolt'].edges.findAt((0.0, bolt_cap_radius, 
+    # -10), ), MIDDLE))
+    # #this runs for some reason on its own with intended results
+    
+mdb.models['Model-1'].parts['Bolt'].DatumPlaneByPrincipalPlane(offset=0.0, 
+    principalPlane=XYPLANE)
+mdb.models['Model-1'].parts['Bolt'].DatumPlaneByPrincipalPlane(offset=bolt_thickness, 
+    principalPlane=XYPLANE)
+mdb.models['Model-1'].parts['Bolt'].PartitionCellByDatumPlane(cells=
+    mdb.models['Model-1'].parts['Bolt'].cells, datumPlane=
+    mdb.models['Model-1'].parts['Bolt'].datums[8])
+mdb.models['Model-1'].parts['Bolt'].PartitionCellByDatumPlane(cells=
+    mdb.models['Model-1'].parts['Bolt'].cells, datumPlane=
+    mdb.models['Model-1'].parts['Bolt'].datums[9])
+
+#partitioning the column 
+mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    mdb.models['Model-1'].parts['Column'].cells.findAt(((-33.333333, 100.0, 
+    1000.0), )), point1=mdb.models['Model-1'].parts['Column'].vertices.findAt((
+    -5.0, 75.0, 1500.0), ), point2=
+    mdb.models['Model-1'].parts['Column'].vertices.findAt((5.0, 75.0, 1500.0), 
+    ), point3=mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    mdb.models['Model-1'].parts['Column'].edges.findAt((5.0, 75.0, 375.0), ), 
+    MIDDLE))
+mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    mdb.models['Model-1'].parts['Column'].cells.findAt(((5.0, bolt_thickness, 1000.0), ))
+    , point1=mdb.models['Model-1'].parts['Column'].vertices.findAt((-5.0, 
+    -75.0, 1500.0), ), point2=
+    mdb.models['Model-1'].parts['Column'].vertices.findAt((5.0, -75.0, 1500.0), 
+    ), point3=mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    mdb.models['Model-1'].parts['Column'].edges.findAt((-5.0, -75.0, 375.0), ), 
+    MIDDLE))
+mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    mdb.models['Model-1'].parts['Column'].cells.findAt(((5.084566, -76.297753, 
+    1000.0), ), ((-100.0, 90.0, 1000.0), ), ), point1=
+    mdb.models['Model-1'].parts['Column'].vertices.findAt((15.0, -85.0, 
+    1500.0), ), point2=mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    mdb.models['Model-1'].parts['Column'].edges.findAt((15.0, -85.0, 375.0), ), 
+    MIDDLE), point3=mdb.models['Model-1'].parts['Column'].vertices.findAt((
+    15.0, 85.0, 1500.0), ))
+mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    mdb.models['Model-1'].parts['Column'].cells.findAt(((-71.666667, -85.0, 
+    1000.0), ), ((-5.084566, 76.297753, 1000.0), ), ), point1=
+    mdb.models['Model-1'].parts['Column'].vertices.findAt((-15.0, -85.0, 
+    1500.0), ), point2=mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    mdb.models['Model-1'].parts['Column'].edges.findAt((-15.0, -85.0, 375.0), 
+    ), MIDDLE), point3=mdb.models['Model-1'].parts['Column'].vertices.findAt((
+    -15.0, 85.0, 1500.0), ))
+mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    mdb.models['Model-1'].parts['Column'].cells.findAt(((5.0, bolt_thickness, 1000.0), ))
+    , point1=mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    mdb.models['Model-1'].parts['Column'].edges.findAt((-5.0, -37.5, 1500.0), 
+    ), MIDDLE), point2=mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    mdb.models['Model-1'].parts['Column'].edges.findAt((5.0, 37.5, 1500.0), ), 
+    MIDDLE), point3=mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    mdb.models['Model-1'].parts['Column'].edges.findAt((-5.0, -37.5, 0.0), ), 
+    MIDDLE))
+del mdb.models['Model-1'].parts['Column'].features['Partition cell-5']
+
+#partitioning the endplate
+for i in [0, 70.0, -70.0]:
+    mdb.models['Model-1'].parts['End-Plate'].DatumPlaneByPrincipalPlane(offset=i, 
+        principalPlane=XZPLANE)
+for i in [0, 50.0, -50.0]:
+    mdb.models['Model-1'].parts['End-Plate'].DatumPlaneByPrincipalPlane(offset=i, 
+        principalPlane=YZPLANE)
+for i in range(2,8):
+    mdb.models['Model-1'].parts['End-Plate'].PartitionCellByDatumPlane(cells=
+        mdb.models['Model-1'].parts['End-Plate'].cells, datumPlane=
+        mdb.models['Model-1'].parts['End-Plate'].datums[i])
+# mdb.models['Model-1'].parts['End-Plate'].PartitionCellByDatumPlane(cells=
+    # mdb.models['Model-1'].parts['End-Plate'].cells, datumPlane=
+    # mdb.models['Model-1'].parts['End-Plate'].datums[9])
+    
+# mdb.models['Model-1'].parts['End-Plate'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['End-Plate'].cells.findAt(((100.0, 46.666667, 
+    # 6.666667), )), point1=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((50.0, -140.0, 10.0), 
+    # ), MIDDLE), point2=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((-50.0, 140.0, 10.0), 
+    # ), MIDDLE), point3=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((-50.0, 140.0, 0.0), 
+    # ), MIDDLE))
+# mdb.models['Model-1'].parts['End-Plate'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['End-Plate'].cells.findAt(((-58.997484, 
+    # -70.212786, 3.333333), ), ((41.002516, 69.787214, 3.333333), ), ), point1=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((100.0, 70.0, 10.0), 
+    # ), MIDDLE), point2=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((100.0, 70.0, 0.0), 
+    # ), MIDDLE), point3=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((-100.0, -70.0, 
+    # 10.0), ), MIDDLE))
+# mdb.models['Model-1'].parts['End-Plate'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['End-Plate'].cells.findAt(((41.002516, 
+    # 69.787214, 3.333333), ), ((-100.0, 46.666667, 6.666667), ), ), point1=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((-41.46185, 67.15395, 
+    # 10.0), ), CENTER), point2=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((58.53815, 67.15395, 
+    # 10.0), ), CENTER), point3=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((100.0, 105.0, 0.0), 
+    # ), MIDDLE))
+# mdb.models['Model-1'].parts['End-Plate'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['End-Plate'].cells.findAt(((100.0, -46.666667, 
+    # 6.666667), ), ((-58.997484, -70.212786, 3.333333), ), ), point1=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((58.53815, -72.84605, 
+    # 10.0), ), CENTER), point2=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((100.0, -35.0, 10.0), 
+    # ), MIDDLE), point3=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((100.0, -35.0, 0.0), 
+    # ), MIDDLE))
+# mdb.models['Model-1'].parts['End-Plate'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['End-Plate'].cells.findAt(((100.0, -93.333333, 
+    # 6.666667), ), ((58.923891, 71.167978, 6.666667), ), ((100.0, -46.666667, 
+    # 3.333333), ), ((100.0, 46.666667, 6.666667), ), ), point1=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((75.0, -140.0, 10.0), 
+    # ), MIDDLE), point2=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((25.0, 140.0, 10.0), 
+    # ), MIDDLE), point3=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((25.0, 140.0, 0.0), 
+    # ), MIDDLE))
+# mdb.models['Model-1'].parts['End-Plate'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['End-Plate'].cells.findAt(((-100.0, -46.666667, 
+    # 6.666667), ), ((-33.333333, -140.0, 6.666667), ), ((-100.0, 93.333333, 
+    # 6.666667), ), ((-27.545684, 68.891393, 10.0), ), ), point1=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((-25.0, -140.0, 
+    # 10.0), ), MIDDLE), point2=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((-75.0, 140.0, 0.0), 
+    # ), MIDDLE), point3=
+    # mdb.models['Model-1'].parts['End-Plate'].InterestingPoint(
+    # mdb.models['Model-1'].parts['End-Plate'].edges.findAt((-75.0, 140.0, 10.0), 
+    # ), MIDDLE))
+
+#column generating bolt spacing
+mdb.models['Model-1'].ConstrainedSketch(gridSpacing=75.33, name='__profile__', 
+    sheetSize=3013.3, transform=
+    mdb.models['Model-1'].parts['Column'].MakeSketchTransform(
+    sketchPlane=mdb.models['Model-1'].parts['Column'].faces.findAt((43.333333, 
+    100.0, 1000.0), ), sketchPlaneSide=SIDE1, 
+    sketchUpEdge=mdb.models['Model-1'].parts['Column'].edges.findAt((-100.0, 
+    100.0, 375.0), ), sketchOrientation=RIGHT, origin=(57.5, 100.0, 750.0)))
+mdb.models['Model-1'].parts['Column'].projectReferencesOntoSketch(filter=
+    COPLANAR_EDGES, sketch=mdb.models['Model-1'].sketches['__profile__'])
+mdb.models['Model-1'].ConstrainedSketch(gridSpacing=75.33, name='__profile__', 
+    sheetSize=3013.3, transform=
+    mdb.models['Model-1'].parts['Column'].MakeSketchTransform(
+    sketchPlane=mdb.models['Model-1'].parts['Column'].faces.findAt((43.333333, 
+    100.0, 1000.0), ), sketchPlaneSide=SIDE1, 
+    sketchUpEdge=mdb.models['Model-1'].parts['Column'].edges.findAt((100.0, 
+    -85.0, 375.0), ), sketchOrientation=RIGHT, origin=(57.5, 100.0, 750.0)))
+mdb.models['Model-1'].parts['Column'].projectReferencesOntoSketch(filter=
+    COPLANAR_EDGES, sketch=mdb.models['Model-1'].sketches['__profile__'])
+mdb.models['Model-1'].ConstrainedSketch(gridSpacing=75.33, name='__profile__', 
+    sheetSize=3013.3, transform=
+    mdb.models['Model-1'].parts['Column'].MakeSketchTransform(
+    sketchPlane=mdb.models['Model-1'].parts['Column'].faces.findAt((43.333333, 
+    100.0, 1000.0), ), sketchPlaneSide=SIDE1, 
+    sketchUpEdge=mdb.models['Model-1'].parts['Column'].edges.findAt((-100.0, 
+    100.0, 375.0), ), sketchOrientation=RIGHT, origin=(57.5, 100.0, 750.0)))
+mdb.models['Model-1'].parts['Column'].projectReferencesOntoSketch(filter=
+    COPLANAR_EDGES, sketch=mdb.models['Model-1'].sketches['__profile__'])
+mdb.models['Model-1'].sketches['__profile__'].sketchOptions.setValues(
+    gridOrigin=(-15.0, 0.0))
+mdb.models['Model-1'].sketches['__profile__'].undo()
+# mdb.models['Model-1'].sketches['__profile__'].undo()
+#* Nothing to undo.
+mdb.models['Model-1'].sketches['__profile__'].sketchOptions.setValues(
+    gridOrigin=(56.5, 0.0))
+# mdb.models['Model-1'].sketches['__profile__'].undo()
+#* Nothing to undo.
+del mdb.models['Model-1'].sketches['__profile__']
+mdb.models['Model-1'].ConstrainedSketch(gridSpacing=75.33, name='__profile__', 
+    sheetSize=3013.3, transform=
+    mdb.models['Model-1'].parts['Column'].MakeSketchTransform(
+    sketchPlane=mdb.models['Model-1'].parts['Column'].faces.findAt((43.333333, 
+    100.0, 1000.0), ), sketchPlaneSide=SIDE1, 
+    sketchUpEdge=mdb.models['Model-1'].parts['Column'].edges.findAt((-100.0, 
+    100.0, 375.0), ), sketchOrientation=RIGHT, origin=(57.5, 100.0, 750.0)))
+mdb.models['Model-1'].parts['Column'].projectReferencesOntoSketch(filter=
+    COPLANAR_EDGES, sketch=mdb.models['Model-1'].sketches['__profile__'])
+mdb.models['Model-1'].sketches['__profile__'].sketchOptions.setValues(
+    gridOrigin=(57.5, 0.0))
+# mdb.models['Model-1'].sketches['__profile__'].CircleByCenterPerimeter(center=(
+    # 7.5, 70.0), point1=(42.5, 48.0633544921875))
+# mdb.models['Model-1'].sketches['__profile__'].CoincidentConstraint(
+    # addUndoState=False, entity1=
+    # mdb.models['Model-1'].sketches['__profile__'].vertices.findAt((42.5, 
+    # 48.0633544921875), ), entity2=
+    # mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((42.5, 
+    # 675.0), ))
+# mdb.models['Model-1'].sketches['__profile__'].RadialDimension(curve=
+    # mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-27.5, 
+    # 91.936646), ), radius=plate_radius, textPoint=(-138.961486816406, 166.373229980469))
+# mdb.models['Model-1'].sketches['__profile__'].delete(objectList=(
+    # mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((27.248116, 
+    # 57.622645), ), ))
+# mdb.models['Model-1'].sketches['__profile__'].CircleByCenterPerimeter(center=(
+    # 7.5, 70.0), point1=(7.5+plate_radius, 70))
+# # mdb.models['Model-1'].sketches['__profile__'].CoincidentConstraint(
+    # # addUndoState=False, entity1=
+    # # mdb.models['Model-1'].sketches['__profile__'].vertices.findAt((42.5, 
+    # # 70.72900390625), ), entity2=
+    # # mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((42.5, 
+    # # 675.0), ))
+# # mdb.models['Model-1'].sketches['__profile__'].RadialDimension(curve=
+    # # mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-27.5, 
+    # # 69.270996), ), radius=plate_radius, textPoint=(-112.073638916016, 107.022583007813))
+# mdb.models['Model-1'].sketches['__profile__'].undo()
+# mdb.models['Model-1'].sketches['__profile__'].delete(objectList=(
+    # mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((-27.5, 
+    # 69.270996), ), ))
+mdb.models['Model-1'].sketches['__profile__'].CircleByCenterPerimeter(center=(
+    7.5, 70.0), point1=(7.5+plate_radius, 70.0))
+# mdb.models['Model-1'].sketches['__profile__'].RadialDimension(curve=
+    # mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((13.9975, 
+    # 64.67), ), radius=plate_radius, textPoint=(-65.6303253173828, 47.4058837890625))
+mdb.models['Model-1'].sketches['__profile__'].linearPattern(angle1=0.0, angle2=
+    270.0, geomList=(
+    mdb.models['Model-1'].sketches['__profile__'].geometry.findAt((7.5+plate_radius, 
+    70.0), ), ), number1=2, number2=2, spacing1=100.0, spacing2=140.0, 
+    vertexList=())
+mdb.models['Model-1'].parts['Column'].CutExtrude(depth=30.0, 
+    flipExtrudeDirection=OFF, sketch=
+    mdb.models['Model-1'].sketches['__profile__'], sketchOrientation=RIGHT, 
+    sketchPlane=mdb.models['Model-1'].parts['Column'].faces.findAt((43.333333, 
+    100.0, 1000.0), ), sketchPlaneSide=SIDE1, sketchUpEdge=
+    mdb.models['Model-1'].parts['Column'].edges.findAt((-100.0, 100.0, 375.0), 
+    ))
+del mdb.models['Model-1'].sketches['__profile__']
+
+#partition of column 
+mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    mdb.models['Model-1'].parts['Column'].cells.findAt(((-32.347843, 100.0, 
+    453.038635), ), ((5.084566, -76.297753, 1000.0), ), ((35.560426, 85.0, 
+    1051.857117), ), ((33.142879, -100.0, 450.560425), ), ((-33.142879, -100.0, 
+    1049.439575), ), ((-5.0, -25.0, 1000.0), ), ((-5.0, 100.0, 1000.0), ), ), 
+    point1=mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    mdb.models['Model-1'].parts['Column'].edges.findAt((-100.0, 100.0, 375.0), 
+    ), MIDDLE), point2=mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    mdb.models['Model-1'].parts['Column'].edges.findAt((-100.0, 85.0, 375.0), 
+    ), MIDDLE), point3=mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    mdb.models['Model-1'].parts['Column'].edges.findAt((100.0, 100.0, 375.0), 
+    ), MIDDLE))
+# mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['Column'].cells.findAt(((-100.0, -95.0, 500.0), 
+    # ), ((43.333333, -90.0, 0.0), ), ((5.0, -100.0, 500.0), ), ((58.995163, 
+    # 90.0, 679.704985), ), ((5.0, 25.0, 500.0), ), ((-5.084566, 76.297753, 
+    # 500.0), ), ((-33.142879, 100.0, 706.106242), ), ), point1=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges.findAt((-55.708029, 100.0, 
+    # 686.958334), ), CENTER), point2=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges.findAt((44.291971, 100.0, 
+    # 686.958334), ), CENTER), point3=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges.findAt((-44.291971, 85.0, 
+    # 673.041666), ), CENTER))
+    
+for i in [680, 820]:
+   mdb.models['Model-1'].parts['Column'].DatumPlaneByPrincipalPlane(offset=i, 
+        principalPlane=XYPLANE)
+# for i in [680]:
+   # mdb.models['Model-1'].parts['Column'].DatumPlaneByPrincipalPlane(offset=i, 
+        # principalPlane=XYPLANE)
+for i in range(9, 11):
+    mdb.models['Model-1'].parts['Column'].PartitionCellByDatumPlane(cells=
+        mdb.models['Model-1'].parts['Column'].cells, datumPlane=
+        mdb.models['Model-1'].parts['Column'].datums[i])
+
+# mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    # # mdb.models['Model-1'].parts['Column'].cells.findAt(((-43.333333, -90.0, 
+    # # 1500.0), ), ((100.0, -95.0, 1000.0), ), ((-5.084566, -76.297753, 1000.0), 
+    # # ), ((100.0, 90.0, 1000.0), ), ((-5.0, 25.0, 1000.0), ), ((5.0, 100.0, 
+    # # 1000.0), ), ((-70.400875, 100.0, 792.118551), ), ), point1=
+    # # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # # mdb.models['Model-1'].parts['Column'].edges.findAt((44.291971, 100.0, 
+    # # 826.958334), ), CENTER), point2=
+    # # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # # mdb.models['Model-1'].parts['Column'].edges.findAt((-55.708029, 100.0, 
+    # # 826.958334), ), CENTER), point3=
+    # # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # # mdb.models['Model-1'].parts['Column'].edges.findAt((-44.291971, 85.0, 
+    # # 813.041666), ), CENTER))
+    
+
+
+#creating material properties for parts
+mdb.models['Model-1'].Material(description=
+    'This is a bilinear elastic-plastic material with a hardening slope\n', 
+    name='S355 Steel')
+mdb.models['Model-1'].materials['S355 Steel'].Elastic(table=((200000.0, 0.3), 
+    ))
+mdb.models['Model-1'].materials['S355 Steel'].Density(table=((7.85e-09, ), ))
+mdb.models['Model-1'].materials['S355 Steel'].Plastic(table=((355.0, 0.0), (
+    470.0, 0.178)))
+mdb.models['Model-1'].Material(name='Bolt-Steel Gr 8-8', objectToCopy=
+    mdb.models['Model-1'].materials['S355 Steel'])
+mdb.models['Model-1'].materials['Bolt-Steel Gr 8-8'].plastic.setValues(table=((
+    640.0, 0.0), (800.0, 0.178)))
+mdb.models['Model-1'].HomogeneousSolidSection(material='S355 Steel', name=
+    'Section-solid-S355', thickness=None)
+mdb.models['Model-1'].HomogeneousSolidSection(material='Bolt-Steel Gr 8-8', 
+    name='Section-solid-bolt', thickness=None)
+mdb.models['Model-1'].HomogeneousShellSection(idealization=NO_IDEALIZATION, 
+    integrationRule=SIMPSON, material='S355 Steel', name='Section-shell-flange'
+    , nodalThicknessField='', numIntPts=5, poissonDefinition=DEFAULT, 
+    preIntegrate=OFF, temperature=GRADIENT, thickness=10.0, thicknessField='', 
+    thicknessModulus=None, thicknessType=UNIFORM, useDensity=OFF)
+mdb.models['Model-1'].Section(name='Section-shell-web', objectToCopy=
+    mdb.models['Model-1'].sections['Section-shell-flange'])
+mdb.models['Model-1'].parts['End-Plate'].SectionAssignment(offset=0.0, 
+    offsetField='', offsetType=MIDDLE_SURFACE, region=Region(
+    cells=mdb.models['Model-1'].parts['End-Plate'].cells), 
+    sectionName='Section-solid-S355', thicknessAssignment=FROM_SECTION)
+mdb.models['Model-1'].parts['Column'].SectionAssignment(offset=0.0, 
+    offsetField='', offsetType=MIDDLE_SURFACE, region=Region(
+    cells=mdb.models['Model-1'].parts['Column'].cells), sectionName='Section-solid-S355', 
+    thicknessAssignment=FROM_SECTION)
+mdb.models['Model-1'].parts['Bolt'].SectionAssignment(offset=0.0, offsetField=
+    '', offsetType=MIDDLE_SURFACE, region=Region(
+    cells=mdb.models['Model-1'].parts['Bolt'].cells), sectionName='Section-solid-bolt', 
+    thicknessAssignment=FROM_SECTION)
+mdb.models['Model-1'].parts['Beam'].SectionAssignment(offset=0.0, offsetField=
+    '', offsetType=MIDDLE_SURFACE, region=Region(
+    faces=mdb.models['Model-1'].parts['Beam'].faces.findAt(((0.0, -40.0, 
+    333.333333), (-1.0, 0.0, 0.0)), )), sectionName='Section-shell-web', 
+    thicknessAssignment=FROM_SECTION)
+mdb.models['Model-1'].parts['Beam'].SectionAssignment(offset=0.0, offsetField=
+    '', offsetType=MIDDLE_SURFACE, region=Region(
+    faces=mdb.models['Model-1'].parts['Beam'].faces.findAt(((-20.0, 120.0, 
+    333.333333), (0.0, -1.0, 0.0)), ((20.0, 120.0, 166.666667), (0.0, -1.0, 
+    0.0)), ((-20.0, -120.0, 333.333333), (0.0, -1.0, 0.0)), ((20.0, -120.0, 
+    166.666667), (0.0, -1.0, 0.0)), )), sectionName='Section-shell-flange', 
+    thicknessAssignment=FROM_SECTION)
+
+
+#creation of assembly 
+mdb.models['Model-1'].rootAssembly.DatumCsysByDefault(CARTESIAN)
+mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='Beam-1', part=
+    mdb.models['Model-1'].parts['Beam'])
+mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='Column-1', 
+    part=mdb.models['Model-1'].parts['Column'])
+mdb.models['Model-1'].rootAssembly.rotate(angle=90.0, axisDirection=(10.0, 0.0, 
+    0.0), axisPoint=(-5.0, 0.0, 0.0), instanceList=('Column-1', ))
+# mdb.models['Model-1'].rootAssembly.rotate(angle=180.0, axisDirection=(0.0, 1.0, 
+    # 0.0), axisPoint=(0.0, 0.0, 0.0), instanceList=('Column-1', ))
+mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='End-Plate-1', 
+    part=mdb.models['Model-1'].parts['End-Plate'])
+mdb.models['Model-1'].rootAssembly.translate(instanceList=('End-Plate-1', ), 
+    vector=(0.0, -750.0, 100.0))
+mdb.models['Model-1'].rootAssembly.translate(instanceList=('Beam-1', ), vector=
+    (0.0, -750.0, 110.0+plate_change))
+mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='Bolt-1', part=
+    mdb.models['Model-1'].parts['Bolt'])
+# mdb.models['Model-1'].rootAssembly.Coaxial(fixedAxis=
+    # mdb.models['Model-1'].rootAssembly.instances['End-Plate-1'].faces.findAt((
+    # 49.678455, -828.994254, 106.666667), ), flip=OFF, movableAxis=
+    # mdb.models['Model-1'].rootAssembly.instances['Bolt-1'].faces.findAt((
+    # 4.751376, -6.436181, 16.666667), ))
+mdb.models['Model-1'].rootAssembly.translate(instanceList=('Bolt-1', ), vector=
+    (0.0, 0.0, 85.0))
+mdb.models['Model-1'].rootAssembly.translate(instanceList=('Bolt-1', ), vector=
+    (50.0, -820.0, 0.0))
+# mdb.models['Model-1'].rootAssembly.translate(instanceList=('Bolt-1', ), vector=
+    # (-50, 819, 7.5))    
+# Point 1: 50., -810., 105.  Point 2: 50., -810., 105.
+# Point 1: 0., 9., 97.5  Point 2: 0., 9., 97.5    
+mdb.models['Model-1'].rootAssembly.LinearInstancePattern(direction1=(-1.0, 0.0, 
+    0.0), direction2=(0.0, 1.0, 0.0), instanceList=('Bolt-1', ), number1=2, 
+    number2=2, spacing1=100.0, spacing2=140.0)
+
+
+#creating steps
+mdb.models['Model-1'].StaticStep(description=
+    'A step for applying the column axial load and the beam end displacement', 
+    initialInc=0.01, maxInc=0.1, maxNumInc=10000000, minInc=1e-15, name=
+    'Loading_Step', nlgeom=ON, previous='Initial')
+    
+#Creating contact 
+
+mdb.models['Model-1'].ContactProperty('IntProp')
+mdb.models['Model-1'].interactionProperties['IntProp'].TangentialBehavior(
+    dependencies=0, directionality=ISOTROPIC, elasticSlipStiffness=None, 
+    formulation=PENALTY, fraction=0.005, maximumElasticSlip=FRACTION, 
+    pressureDependency=OFF, shearStressLimit=None, slipRateDependency=OFF, 
+    table=((0.35, ), ), temperatureDependency=OFF)
+mdb.models['Model-1'].interactionProperties['IntProp'].NormalBehavior(
+    allowSeparation=ON, constraintEnforcementMethod=DEFAULT, 
+    pressureOverclosure=HARD)
+mdb.models['Model-1'].ContactStd(createStepName='Initial', name='Int-1')
+mdb.models['Model-1'].interactions['Int-1'].includedPairs.setValuesInStep(
+    stepName='Initial', useAllstar=ON)
+mdb.models['Model-1'].interactions['Int-1'].contactPropertyAssignments.appendInStep(
+    assignments=((GLOBAL, SELF, 'IntProp'), ), stepName='Initial')
+mdb.models['Model-1'].Tie(adjust=ON, master=Region(
+    side1Faces=mdb.models['Model-1'].rootAssembly.instances['End-Plate-1'].faces.findAt(
+    ((-50.321134, -849.316096, 110.0+plate_change), ), ((-51.14805, -790.895028, 110.0+plate_change), ), 
+    ((-50.321134, -709.316096, 110.0+plate_change), ), ((-51.14805, -650.895027, 110.0+plate_change), ), 
+    ((51.14805, -849.104973, 110.0+plate_change), ), ((51.14805, -709.104972, 110.0+plate_change), ), ((
+    48.85195, -790.895028, 110.0+plate_change), ), ((51.14805, -650.895027, 110.0+plate_change), ), ((
+    -48.85195, -790.895028, 110.0+plate_change), ), ((49.678866, -849.316096, 110.0+plate_change), ), ((
+    49.678866, -709.316096, 110.0+plate_change), ), ((-48.85195, -650.895027, 110.0+plate_change), ), ((
+    -48.85195, -709.104972, 110.0+plate_change), ), ((51.14805, -790.895028, 110.0+plate_change), ), ((
+    48.85195, -650.895027, 110.0+plate_change), ), ((-48.85195, -849.104973, 110.0+plate_change), ), )), 
+    name='Beam-To-Plate', positionToleranceMethod=COMPUTED, slave=Region(
+    side1Edges=mdb.models['Model-1'].rootAssembly.instances['Beam-1'].edges.findAt(
+    ((-45.0, -630.0, 110.0+plate_change), ), ((15.0, -630.0, 110.0+plate_change), ), ((-45.0, -870.0, 
+    110.0+plate_change), ), ((15.0, -870.0, 110.0+plate_change), ), )), thickness=ON, tieRotations=ON)
+# mdb.models['Model-1'].constraints['Beam-To-Plate'].setValues(slave=Region(
+    # side1Edges=mdb.models['Model-1'].rootAssembly.instances['Beam-1'].edges.findAt(
+    # ((-45.0, -630.0, 110.0+plate_change), ), ((15.0, -630.0, 110.0+plate_change), ), ((-45.0, -870.0, 
+    # 110.0+plate_change), ), ((15.0, -870.0, 110.0+plate_change), ), ((0.0, -690.0, 110.0+plate_change), ), )))
+    # 110.0+plate_change), ), ((15.0, -870.0, 110.0+plate_change), ), ((0.0, -690.0, 110.0+plate_change), ), )))
+    
+mdb.models['Model-1'].constraints['Beam-To-Plate'].setValues(slave=Region(
+    side1Edges=mdb.models['Model-1'].rootAssembly.instances['Beam-1'].edges.findAt(
+    ((-45.0, -630.0, 110.0+plate_change), ), ((15.0, -630.0, 110.0+plate_change), ), ((-45.0, -870.0, 
+    110.0+plate_change), ), ((15.0, -870.0, 110.0+plate_change), ), ((0.0, -690.0, 110.0+plate_change), ), )))
+    
+#creating reference points
+#why cant i remove 749 related to 790
+mdb.models['Model-1'].rootAssembly.ReferencePoint(point=(0.0, 1500.0, 0.0))
+del mdb.models['Model-1'].rootAssembly.features['RP-1']
+mdb.models['Model-1'].rootAssembly.ReferencePoint(point=(0.0, -1500.0, 0.0))
+mdb.models['Model-1'].rootAssembly.ReferencePoint(point=
+    mdb.models['Model-1'].rootAssembly.instances['Beam-1'].InterestingPoint(
+    mdb.models['Model-1'].rootAssembly.instances['Beam-1'].edges[14], MIDDLE))
+mdb.models['Model-1'].rootAssembly.features.changeKey(fromName='RP-2', toName=
+    'RP-Beam')
+mdb.models['Model-1'].rootAssembly.features.changeKey(fromName='RP-1', toName=
+    'RP-Column')
+del mdb.models['Model-1'].rootAssembly.features['RP-Column']
+mdb.models['Model-1'].rootAssembly.ReferencePoint(point=(0.0, 0.0, 0.0))
+mdb.models['Model-1'].rootAssembly.features.changeKey(fromName='RP-1', toName=
+    'RP-Column')
+mdb.models['Model-1'].rootAssembly.ReferencePoint(point=(0.0, -1500.0, 0.0))
+mdb.models['Model-1'].rootAssembly.features.changeKey(fromName='RP-Beam', 
+    toName='RP-Beam-Free End')
+mdb.models['Model-1'].rootAssembly.features.changeKey(fromName='RP-Column', 
+    toName='RP-Column-Top-End')
+mdb.models['Model-1'].rootAssembly.features.changeKey(fromName='RP-1', toName=
+    'RP-Column-Base')
+    
+    
+mdb.models['Model-1'].RigidBody(name='Rigid-body-beam-end', pinRegion=Region(
+    edges=mdb.models['Model-1'].rootAssembly.instances['Beam-1'].edges.findAt((
+    (-15.0, -630.0, 610+plate_change), ), ((45.0, -630.0, 610+plate_change), ), ((-15.0, -870.0, 
+    610+plate_change), ), ((45.0, -870.0, 610+plate_change), ), ((0.0, -810.0, 610+plate_change), ), )), 
+    refPointRegion=Region(referencePoints=(
+    mdb.models['Model-1'].rootAssembly.referencePoints[21], )))
+    
+# mdb.models['Model-1'].RigidBody(name='Rigid-body-beam-end', pinRegion=Region(
+    # edges=mdb.models['Model-1'].rootAssembly.instances['Beam-1'].edges.getSequenceFromMask(
+    # mask=('[#6142 ]', ), )), refPointRegion=Region(referencePoints=(
+    # mdb.models['Model-1'].rootAssembly.referencePoints[22], )))
+mdb.models['Model-1'].Constraint(name='Rigid-body-column-top', objectToCopy=
+    mdb.models['Model-1'].constraints['Rigid-body-beam-end'])
+    
+
+
+# mdb.models['Model-1'].constraints['Rigid-body-column-top'].setValues(pinRegion=
+    # Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.findAt(
+    # ((43.333333, 0.0, 95.0), ), ((13.724388, 0.0, -89.746264), ), ((-43.333333, 
+    # 0.0, 90.0), ), ((43.333333, 0.0, -90.0), ), ((-1.666667, 0.0, 25.0), ), ((
+    # -43.333333, 0.0, -95.0), ), ((13.724388, 0.0, 89.746264), ), ), 
+    # # edges=mdb.models['Model-1'].rootAssembly.instances['Beam-1'].edges.findAt((
+    # # (-15.0, -630.0, 610.0), ), ((45.0, -630.0, 610.0), ), ((-15.0, -870.0, 
+    # # 610.0), ), ((45.0, -870.0, 610.0), ), ((0.0, -810.0, 610.0), ), )
+    # ), 
+    # refPointRegion=Region(referencePoints=(
+    # mdb.models['Model-1'].rootAssembly.referencePoints[22], )))
+    
+# mdb.models['Model-1'].constraints['Rigid-body-column-top'].setValues(pinRegion=
+    # Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.getSequenceFromMask(
+    # mask=('[#0:4 #450920 #4 ]', ), )), refPointRegion=Region(referencePoints=(
+    # mdb.models['Model-1'].rootAssembly.referencePoints[23], )))
+    
+
+    
+mdb.models['Model-1'].Constraint(name='Rigid-body-column-base', objectToCopy=
+    mdb.models['Model-1'].constraints['Rigid-body-column-top'])
+    
+# mdb.models['Model-1'].constraints['Rigid-body-column-top'].setValues(pinRegion=
+    # Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.findAt(
+    # ((-38.333333, 0.0, 95.0), ), ((-38.333333, 0.0, -90.0), ), ((66.666667, 
+    # 0.0, 95.0), ), ((66.666667, 0.0, -90.0), ), ((38.333333, 0.0, 90.0), ), ((
+    # 13.724388, 0.0, -89.746264), ), ((-66.666667, 0.0, 90.0), ), ((38.333333, 
+    # 0.0, -95.0), ), ((-1.666667, 0.0, 25.0), ), ((-66.666667, 0.0, -95.0), ), (
+    # (13.724388, 0.0, 89.746264), ), )), refPointRegion=Region(referencePoints=(
+    # mdb.models['Model-1'].rootAssembly.referencePoints[22], )))
+  
+mdb.models['Model-1'].constraints['Rigid-body-column-top'].setValues(pinRegion=
+    Region(
+    faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.findAt(
+    ((-38.333333, 0.0, 95.0), ), ((-38.333333, 0.0, -90.0), ), ((66.666667, 
+    0.0, 95.0), ), ((66.666667, 0.0, -90.0), ), ((38.333333, 0.0, 90.0), ), ((
+    13.724388, 0.0, -89.746264), ), ((-66.666667, 0.0, 90.0), ), ((38.333333, 
+    0.0, -95.0), ), ((-1.666667, 0.0, 25.0), ), ((-66.666667, 0.0, -95.0), ), (
+    (13.724388, 0.0, 89.746264), ), )))
+mdb.models['Model-1'].constraints['Rigid-body-column-top'].setValues(
+    refPointRegion=Region(referencePoints=(
+    mdb.models['Model-1'].rootAssembly.referencePoints[22], )))    
+    
+mdb.models['Model-1'].constraints['Rigid-body-column-base'].setValues(
+    pinRegion=Region(
+    faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.findAt(
+    ((13.724388, -1500.0, 89.746264), ), ((43.333333, -1500.0, -95.0), ), ((
+    43.333333, -1500.0, 90.0), ), ((-43.333333, -1500.0, -90.0), ), ((
+    -43.333333, -1500.0, 95.0), ), ((1.666667, -1500.0, 25.0), ), ((13.724388, 
+    -1500.0, -89.746264), ), ), 
+    edges=mdb.models['Model-1'].rootAssembly.instances['Column-1'].edges.findAt(
+    ((-78.75, -1500.0, -85.0), ), )), refPointRegion=Region(referencePoints=(
+    mdb.models['Model-1'].rootAssembly.referencePoints[23], )))
+
+    
+# mdb.models['Model-1'].constraints['Rigid-body-column-base'].setValues(
+    # pinRegion=Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.getSequenceFromMask(
+    # mask=('[#0:4 #2860c0 #2 ]', ), ), 
+    # edges=mdb.models['Model-1'].rootAssembly.instances['Column-1'].edges.getSequenceFromMask(
+    # mask=('[#0 #8000000 ]', ), )), refPointRegion=Region(referencePoints=(
+    # mdb.models['Model-1'].rootAssembly.referencePoints[24], )))
+
+# mdb.models['Model-1'].constraints['Rigid-body-column-base'].setValues(
+    # pinRegion=Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.findAt(
+    # ((-38.333333, -1500.0, 90.0), ), ((-38.333333, -1500.0, -95.0), ), ((
+    # 66.666667, -1500.0, 90.0), ), ((66.666667, -1500.0, -95.0), ), ((13.724388, 
+    # -1500.0, 89.746264), ), ((38.333333, -1500.0, -90.0), ), ((38.333333, 
+    # -1500.0, 95.0), ), ((-66.666667, -1500.0, -90.0), ), ((-66.666667, -1500.0, 
+    # 95.0), ), ((1.666667, -1500.0, 25.0), ), ((13.724388, -1500.0, -89.746264), 
+    # ), )))
+    
+#including loading on the points
+
+mdb.models['Model-1'].ConcentratedForce(cf2=20000.0, createStepName=
+    'Loading_Step', distributionType=UNIFORM, field='', localCsys=None, name=
+    'Column-axial-load', region=Region(referencePoints=(
+    mdb.models['Model-1'].rootAssembly.referencePoints[22], )))
+mdb.models['Model-1'].loads['Column-axial-load'].setValues(cf2=-20000.0, 
+    distributionType=UNIFORM, field='')
+mdb.models['Model-1'].TabularAmplitude(data=((0.0, 1.0), (1.0, 1.0)), name=
+    'Constant-Amp', smooth=SOLVER_DEFAULT, timeSpan=STEP)
+mdb.models['Model-1'].TabularAmplitude(data=((0.0, 0.0), (1.0, 1.0)), name=
+    'Ramp-Amp', smooth=SOLVER_DEFAULT, timeSpan=STEP)
+mdb.models['Model-1'].loads['Column-axial-load'].setValues(amplitude=
+    'Constant-Amp', distributionType=UNIFORM, field='')
+mdb.models['Model-1'].DisplacementBC(amplitude=UNSET, createStepName='Initial', 
+    distributionType=UNIFORM, fieldName='', localCsys=None, name=
+    'Column-Fixed-BC', region=Region(referencePoints=(
+    mdb.models['Model-1'].rootAssembly.referencePoints[23], )), u1=SET, u2=SET, 
+    u3=SET, ur1=SET, ur2=SET, ur3=SET)
+mdb.models['Model-1'].DisplacementBC(amplitude='Ramp-Amp', createStepName=
+    'Loading_Step', distributionType=UNIFORM, fieldName='', fixed=OFF, 
+    localCsys=None, name='Beam Displacement', region=Region(referencePoints=(
+    mdb.models['Model-1'].rootAssembly.referencePoints[21], )), u1=UNSET, u2=
+    -50.0, u3=UNSET, ur1=UNSET, ur2=UNSET, ur3=UNSET)
+mdb.models['Model-1'].boundaryConditions['Beam Displacement'].setValues(u1=0.0, 
+    ur2=0.0, ur3=0.0)
+    
+#seeding the beam
+mdb.models['Model-1'].parts['Beam'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=15.0)
+mdb.models['Model-1'].parts['Beam'].generateMesh()
+
+#seeding the endplate 
+mdb.models['Model-1'].parts['End-Plate'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=6.0)
+# mdb.models['Model-1'].parts['End-Plate'].seedEdgeByNumber(constraint=FIXED, 
+    # edges=mdb.models['Model-1'].parts['End-Plate'].edges.getSequenceFromMask((
+    # '[#5020515a #68810040 #404149 #106b0020 #12000655 ]', ), ), number=2)
+# mdb.models['Model-1'].parts['End-Plate'].generateMesh()
+# mdb.models['Model-1'].parts['End-Plate'].deleteMesh(regions=
+    # mdb.models['Model-1'].parts['End-Plate'].cells.getSequenceFromMask((
+    # '[#ffff ]', ), ))
+# mdb.models['Model-1'].parts['End-Plate'].setMeshControls(algorithm=MEDIAL_AXIS, 
+    # regions=mdb.models['Model-1'].parts['End-Plate'].cells.getSequenceFromMask(
+    # ('[#ffff ]', ), ), technique=SWEEP)
+mdb.models['Model-1'].parts['End-Plate'].generateMesh()
+
+#seeding the column 
+mdb.models['Model-1'].parts['Column'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=12.0)
+# mdb.models['Model-1'].parts['Column'].DatumPlaneByPrincipalPlane(offset=890.0, 
+    # principalPlane=XYPLANE)
+# mdb.models['Model-1'].parts['Column'].DatumPlaneByPrincipalPlane(offset=610.0, 
+    # principalPlane=XYPLANE)
+# mdb.models['Model-1'].parts['Column'].PartitionCellByDatumPlane(cells=
+    # mdb.models['Model-1'].parts['Column'].cells.getSequenceFromMask((
+    # '[#407e000 ]', ), ), datumPlane=
+    # mdb.models['Model-1'].parts['Column'].datums[10])
+# mdb.models['Model-1'].parts['Column'].PartitionCellByDatumPlane(cells=
+    # mdb.models['Model-1'].parts['Column'].cells.getSequenceFromMask((
+    # '[#207e000 ]', ), ), datumPlane=
+    # mdb.models['Model-1'].parts['Column'].datums[14])
+        
+    
+#further partion of column
+# mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['Column'].cells.getSequenceFromMask((
+    # '[#230400c3 #87 ]', ), ), point1=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[236], CENTER), point2=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[133], CENTER), point3=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[342], CENTER))
+# mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['Column'].cells.getSequenceFromMask((
+    # '[#38800000 #320649 ]', ), ), point1=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[190], CENTER), point2=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[432], CENTER), point3=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[231], CENTER))
+    
+for i in [890.0, 610.0]:
+   mdb.models['Model-1'].parts['Column'].DatumPlaneByPrincipalPlane(offset=i, 
+        principalPlane=XYPLANE)
+for i in range(15,17):
+    mdb.models['Model-1'].parts['Column'].PartitionCellByDatumPlane(cells=
+        mdb.models['Model-1'].parts['Column'].cells, datumPlane=
+        mdb.models['Model-1'].parts['Column'].datums[i])
+        
+        
+# mdb.models['Model-1'].constraints['Rigid-body-column-top'].setValues(pinRegion=
+    # Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.getSequenceFromMask(
+    # mask=('[#4200000 #0 #10800 #0:6 #42480000 #10011 ]', ), ), 
+    # edges=mdb.models['Model-1'].rootAssembly.instances['Column-1'].edges.getSequenceFromMask(
+    # mask=('[#0:7 #100 ]', ), )))
+# mdb.models['Model-1'].constraints['Rigid-body-column-base'].setValues(
+    # pinRegion=Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.getSequenceFromMask(
+    # mask=('[#0 #20002 #800000 #80 #0:5 #18300000 #800a ]', ), ), 
+    # edges=mdb.models['Model-1'].rootAssembly.instances['Column-1'].edges.getSequenceFromMask(
+    # mask=('[#0:4 #400000 #0:9 #800 ]', ), )))
+
+
+
+# # mdb.models['Model-1'].parts['Column'].deleteFeatures(('Cut extrude-1', 
+    # # 'Partition cell-11', 'Partition cell-10', 'Partition cell-7', 
+    # # 'Partition cell-6'))
+
+
+    
+# mdb.models['Model-1'].ConstrainedSketch(gridSpacing=45.05, name='__profile__', 
+    # sheetSize=1802.33, transform=
+    # mdb.models['Model-1'].parts['Column'].MakeSketchTransform(
+    # sketchPlane=mdb.models['Model-1'].parts['Column'].faces[74], 
+    # sketchPlaneSide=SIDE1, 
+    # sketchUpEdge=mdb.models['Model-1'].parts['Column'].edges[28], 
+    # sketchOrientation=RIGHT, origin=(-57.5, -100.0, 820.0)))
+# mdb.models['Model-1'].parts['Column'].projectReferencesOntoSketch(filter=
+    # COPLANAR_EDGES, sketch=mdb.models['Model-1'].sketches['__profile__'])
+# mdb.models['Model-1'].sketches['__profile__'].sketchOptions.setValues(
+    # gridAngle=0.0, gridOrigin=(0.0, 0.0))
+# mdb.models['Model-1'].sketches['__profile__'].sketchOptions.setValues(
+    # gridOrigin=(57.5, -70.0))
+# mdb.models['Model-1'].sketches['__profile__'].CircleByCenterPerimeter(center=(
+    # 7.5, 0.0), point1=(7.5+plate_radius, 0.0))
+# # mdb.models['Model-1'].sketches['__profile__'].RadialDimension(curve=
+    # # mdb.models['Model-1'].sketches['__profile__'].geometry[50], radius=plate_radius, 
+    # # textPoint=(-100.957641601563, -7.95166015625))
+# mdb.models['Model-1'].sketches['__profile__'].linearPattern(angle1=0.0, angle2=
+    # 270.0, geomList=(
+    # mdb.models['Model-1'].sketches['__profile__'].geometry[50], ), number1=2, 
+    # number2=2, spacing1=100.0, spacing2=140.0, vertexList=())
+    
+    
+# #set extrude on column bolt spacing 
+# mdb.models['Model-1'].parts['Column'].CutExtrude(depth=150.0, 
+    # flipExtrudeDirection=OFF, sketch=
+    # mdb.models['Model-1'].sketches['__profile__'], sketchOrientation=RIGHT, 
+    # sketchPlane=mdb.models['Model-1'].parts['Column'].faces[74], 
+    # sketchPlaneSide=SIDE1, sketchUpEdge=
+    # mdb.models['Model-1'].parts['Column'].edges[28])
+# del mdb.models['Model-1'].sketches['__profile__']
+
+mdb.models['Model-1'].parts['Column'].deleteMesh(regions=
+    mdb.models['Model-1'].parts['Column'].cells.getSequenceFromMask((
+    '[#2c580 ]', ), ))
+    
+#new partitions
+for i in [-50.0, 50.0]:
+   mdb.models['Model-1'].parts['Column'].DatumPlaneByPrincipalPlane(offset=i, 
+        principalPlane=YZPLANE)
+for i in range(19,21):
+    mdb.models['Model-1'].parts['Column'].PartitionCellByDatumPlane(cells=
+        mdb.models['Model-1'].parts['Column'].cells, datumPlane=
+        mdb.models['Model-1'].parts['Column'].datums[i])
+
+# mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['Column'].cells.getSequenceFromMask((
+    # '[#5f80000 ]', ), ), point1=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[4], CENTER), point2=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[2], CENTER), point3=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[3], CENTER))
+# mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['Column'].cells.getSequenceFromMask((
+    # '[#7e000 #4 ]', ), ), point1=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[102], CENTER), point2=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[101], CENTER), point3=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[106], CENTER))
+# mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['Column'].cells.getSequenceFromMask((
+    # '[#10c2924 #223 ]', ), ), point1=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[95], CENTER), point2=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[94], CENTER), point3=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[184], CENTER))
+# mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['Column'].cells.getSequenceFromMask((
+    # '[#84100000 #310622 ]', ), ), point1=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[289], CENTER), point2=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[287], CENTER), point3=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[214], CENTER))
+    
+    
+# mdb.models['Model-1'].constraints['Rigid-body-column-top'].setValues(pinRegion=
+    # Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.getSequenceFromMask(
+    # mask=('[#20000 #80 #4100 #0:5 #8080000 #1000045 ]', ), )))
+# mdb.models['Model-1'].constraints['Rigid-body-column-base'].setValues(
+    # pinRegion=Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.getSequenceFromMask(
+    # mask=('[#0:2 #80001 #0:5 #60500000 #800028 ]', ), ), 
+    # edges=mdb.models['Model-1'].rootAssembly.instances['Column-1'].edges.getSequenceFromMask(
+    # mask=('[#0:4 #8000000 #0:2 #40 #0:4 #100000 ]', ), )))
+# del mdb.models['Model-1'].parts['Column'].features['Partition cell-11']
+# mdb.models['Model-1'].parts['Column'].PartitionCellByPlaneThreePoints(cells=
+    # mdb.models['Model-1'].parts['Column'].cells.getSequenceFromMask((
+    # '[#84100000 #314e22 ]', ), ), point1=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[214], CENTER), point2=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[289], CENTER), point3=
+    # mdb.models['Model-1'].parts['Column'].InterestingPoint(
+    # mdb.models['Model-1'].parts['Column'].edges[287], CENTER))
+# mdb.models['Model-1'].constraints['Rigid-body-column-base'].setValues(
+    # pinRegion=Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.getSequenceFromMask(
+    # mask=('[#100000 #100 #8000100 #0:5 #50000000 #80002860 ]', ), ), 
+    # edges=mdb.models['Model-1'].rootAssembly.instances['Column-1'].edges.getSequenceFromMask(
+    # mask=('[#0:5 #40000 #0 #20000000 #0:5 #1 ]', ), )))
+# mdb.models['Model-1'].constraints['Rigid-body-column-top'].setValues(pinRegion=
+    # Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.getSequenceFromMask(
+    # mask=('[#4000 #2 #410000 #0:5 #88000000 #4508 #1 ]', ), )))
+# mdb.models['Model-1'].constraints['Rigid-body-column-base'].setValues(
+    # pinRegion=Region(
+    # faces=mdb.models['Model-1'].rootAssembly.instances['Column-1'].faces.getSequenceFromMask(
+    # mask=('[#100000 #100 #8000100 #0:5 #50000000 #80002860 ]', ), ), 
+    # edges=mdb.models['Model-1'].rootAssembly.instances['Column-1'].edges.getSequenceFromMask(
+    # mask=('[#0:14 #2000 ]', ), )))
+mdb.models['Model-1'].parts['Column'].generateMesh()
+mdb.models['Model-1'].parts['Column'].deleteSeeds(regions=
+    mdb.models['Model-1'].parts['Column'].edges.getSequenceFromMask((
+    '[#ffffffff:15 #3f ]', ), ))
+    
+ #reseeding   
+# mdb.models['Model-1'].parts['Column'].seedEdgeBySize(constraint=FINER, 
+    # deviationFactor=0.1, edges=
+    # mdb.models['Model-1'].parts['Column'].edges.getSequenceFromMask((
+    # '[#8000280a #120800a2 #80 #10040480 #2a800000 #a2800 #400400', 
+    # ' #412080 #102 #0:3 #b6900000 #54d0012a #8220404a ]'), ), minSizeFactor=0.1
+    # , size=12.0)
+# mdb.models['Model-1'].parts['Column'].seedEdgeBySize(constraint=FINER, 
+    # deviationFactor=0.1, edges=
+    # mdb.models['Model-1'].parts['Column'].edges.getSequenceFromMask((
+    # '[#6b4e82b0 #400214 #22102008 #41011004 #c02ba511 #410146b4 #28040104', 
+    # ' #11000400 #541410 #aaadac00 #4986a #aad56d80 #284 #2280000', 
+    # ' #4b1020 ]'), ), minSizeFactor=0.1, size=4.0)
+# mdb.models['Model-1'].parts['Column'].seedEdgeBySize(constraint=FINER, 
+    # deviationFactor=0.1, edges=
+    # mdb.models['Model-1'].parts['Column'].edges.getSequenceFromMask((
+    # '[#0:3 #800840 #88 #0:2 #a200000 #208a20 #40', 
+    # ' #20000000 #50000004 #0 #40000 #800 ]'), ), minSizeFactor=0.1, size=12.0)
+# mdb.models['Model-1'].parts['Column'].seedEdgeBySize(constraint=FINER, 
+    # deviationFactor=0.1, edges=
+    # mdb.models['Model-1'].parts['Column'].edges.getSequenceFromMask((
+    # '[#0:3 #8000000 #0:4 #4001 #10000000 #4 ]', ), ), minSizeFactor=0.1, size=
+    # 12.0)
+    
+# mdb.models['Model-1'].parts['Column'].seedEdgeBySize(constraint=FINER, 
+    # deviationFactor=0.1, edges=
+    # mdb.models['Model-1'].parts['Column'].edges.getSequenceFromMask((
+    # '[#8000280a #120800a2 #80 #10040480 #2a800000 #a2800 #400400', 
+    # ' #412080 #102 #0:3 #b6900000 #54d0012a #8220404a ]'), ), minSizeFactor=0.1
+    # , size=12.0)
+mdb.models['Model-1'].parts['Column'].seedEdgeBySize(constraint=FINER, 
+    deviationFactor=0.1, edges=
+    mdb.models['Model-1'].parts['Column'].edges.findAt(((50.0, 96.25, 750.0), 
+    ), ((50.0, 85.0, 735.0), ), ((50.0, 88.75, 690.0), ), ((50.0, 100.0, 
+    705.0), ), ((50.0, 100.0, 765.0), ), ((50.0, 96.25, 810.0), ), ((50.0, 
+    85.0, 795.0), ), ((50.0, -100.0, 872.5), ), ((50.0, -88.75, 820.0), ), ((
+    50.0, -85.0, 837.5), ), ((50.0, -100.0, 802.5), ), ((50.0, -88.75, 750.0), 
+    ), ((50.0, -85.0, 767.5), ), ((50.0, -88.75, 680.0), ), ((50.0, -100.0, 
+    662.5), ), ((50.0, -85.0, 627.5), ), ((50.0, -100.0, 732.5), ), ((50.0, 
+    -85.0, 697.5), ), ((50.0, 85.0, 875.0), ), ((50.0, 88.75, 830.0), ), ((
+    50.0, 100.0, 845.0), ), ((50.0, 100.0, 625.0), ), ((50.0, 96.25, 670.0), ), 
+    ((50.0, 85.0, 655.0), ), ((62.5, 85.0, 750.0), ), ((100.0, 85.0, 767.5), ), 
+    ((70.0, 85.0, 820.0), ), ((59.238795, 85.0, 816.173166), ), ((40.761205, 
+    100.0, 816.173166), ), ((40.0, 88.75, 820.0), ), ((46.173166, 85.0, 
+    810.761205), ), ((53.826834, 85.0, 689.238795), ), ((70.0, 85.0, 680.0), ), 
+    ((100.0, 85.0, 697.5), ), ((41.25, 100.0, 750.0), ), ((15.0, 88.75, 750.0), 
+    ), ((23.75, 85.0, 750.0), ), ((15.0, 100.0, 767.5), ), ((33.75, 100.0, 
+    820.0), ), ((59.238795, 100.0, 683.826834), ), ((60.0, 96.25, 680.0), ), ((
+    46.173166, 100.0, 689.238795), ), ((33.75, 100.0, 680.0), ), ((15.0, 100.0, 
+    697.5), ), ((62.5, -100.0, 820.0), ), ((100.0, -100.0, 837.5), ), ((41.25, 
+    -85.0, 820.0), ), ((15.0, -85.0, 837.5), ), ((15.0, -96.25, 820.0), ), ((
+    23.75, -100.0, 820.0), ), ((62.5, -100.0, 750.0), ), ((100.0, -100.0, 
+    767.5), ), ((41.25, -85.0, 750.0), ), ((15.0, -85.0, 767.5), ), ((15.0, 
+    -96.25, 750.0), ), ((23.75, -100.0, 750.0), ), ((62.5, -100.0, 680.0), ), (
+    (100.0, -100.0, 697.5), ), ((41.25, -85.0, 680.0), ), ((15.0, -85.0, 
+    697.5), ), ((100.0, -100.0, 627.5), ), ((15.0, -96.25, 680.0), ), ((23.75, 
+    -100.0, 680.0), ), ((15.0, -85.0, 627.5), ), ((100.0, 100.0, 837.5), ), ((
+    90.0, 100.0, 820.0), ), ((59.238795, 100.0, 823.826834), ), ((40.761205, 
+    85.0, 823.826834), ), ((46.173166, 100.0, 829.238795), ), ((15.0, 85.0, 
+    837.5), ), ((21.25, 85.0, 820.0), ), ((40.761205, 100.0, 676.173166), ), ((
+    40.0, 88.75, 680.0), ), ((46.173166, 85.0, 670.761205), ), ((100.0, 85.0, 
+    627.5), ), ((59.238795, 85.0, 676.173166), ), ((15.0, 100.0, 627.5), ), ((
+    -50.0, 96.25, 750.0), ), ((-50.0, 100.0, 765.0), ), ((-50.0, 96.25, 810.0), 
+    ), ((-50.0, 85.0, 795.0), ), ((-50.0, 85.0, 735.0), ), ((-50.0, 88.75, 
+    690.0), ), ((-50.0, 100.0, 705.0), ), ((-50.0, -100.0, 872.5), ), ((-50.0, 
+    -88.75, 820.0), ), ((-50.0, -85.0, 837.5), ), ((-50.0, -100.0, 802.5), ), (
+    (-50.0, -88.75, 750.0), ), ((-50.0, -85.0, 767.5), ), ((-50.0, -88.75, 
+    680.0), ), ((-50.0, -100.0, 662.5), ), ((-50.0, -85.0, 627.5), ), ((-50.0, 
+    -100.0, 732.5), ), ((-50.0, -85.0, 697.5), ), ((-50.0, 85.0, 875.0), ), ((
+    -50.0, 88.75, 830.0), ), ((-50.0, 100.0, 845.0), ), ((-50.0, 100.0, 625.0), 
+    ), ((-50.0, 96.25, 670.0), ), ((-50.0, 85.0, 655.0), ), ((-40.761205, 
+    100.0, 683.826834), ), ((-40.0, 96.25, 680.0), ), ((-46.173166, 85.0, 
+    689.238795), ), ((-87.5, 85.0, 750.0), ), ((-100.0, 85.0, 697.5), ), ((
+    -90.0, 85.0, 680.0), ), ((-59.238795, 85.0, 683.826834), ), ((-23.75, 
+    100.0, 750.0), ), ((-15.0, 100.0, 697.5), ), ((-21.25, 100.0, 680.0), ), ((
+    -53.826834, 85.0, 810.761205), ), ((-90.0, 85.0, 820.0), ), ((-100.0, 85.0, 
+    767.5), ), ((-62.5, 100.0, 750.0), ), ((-100.0, 96.25, 750.0), ), ((
+    -46.173166, 100.0, 810.761205), ), ((-21.25, 100.0, 820.0), ), ((-15.0, 
+    100.0, 767.5), ), ((-59.238795, 100.0, 816.173166), ), ((-60.0, 88.75, 
+    820.0), ), ((-41.25, -100.0, 820.0), ), ((-15.0, -100.0, 872.5), ), ((
+    -62.5, -85.0, 820.0), ), ((-100.0, -85.0, 837.5), ), ((-41.25, -100.0, 
+    750.0), ), ((-15.0, -100.0, 802.5), ), ((-100.0, -88.75, 820.0), ), ((
+    -87.5, -100.0, 820.0), ), ((-62.5, -85.0, 750.0), ), ((-100.0, -85.0, 
+    767.5), ), ((-41.25, -100.0, 680.0), ), ((-15.0, -100.0, 732.5), ), ((
+    -100.0, -88.75, 750.0), ), ((-87.5, -100.0, 750.0), ), ((-62.5, -85.0, 
+    680.0), ), ((-100.0, -85.0, 697.5), ), ((-100.0, -88.75, 680.0), ), ((
+    -87.5, -100.0, 680.0), ), ((-15.0, -100.0, 662.5), ), ((-100.0, -85.0, 
+    627.5), ), ((-59.238795, 85.0, 823.826834), ), ((-53.826834, 100.0, 
+    829.238795), ), ((-15.0, 100.0, 837.5), ), ((-40.761205, 100.0, 
+    823.826834), ), ((-100.0, 85.0, 837.5), ), ((-15.0, 85.0, 627.5), ), ((
+    -33.75, 85.0, 680.0), ), ((-40.761205, 85.0, 676.173166), ), ((-59.238795, 
+    100.0, 676.173166), ), ((-60.0, 88.75, 680.0), ), ((-53.826834, 85.0, 
+    670.761205), ), ((-100.0, 100.0, 627.5), ), ((-70.0, 100.0, 680.0), ), ((
+    100.0, -85.0, 627.5), ), ((100.0, -96.25, 680.0), ), ((-100.0, -100.0, 
+    627.5), ), ((87.5, -85.0, 680.0), ), ((15.0, -100.0, 662.5), ), ((-15.0, 
+    -85.0, 627.5), ), ((-15.0, -96.25, 680.0), ), ((5.0, -75.0, 627.5), ), ((
+    11.173166, -84.238795, 680.0), ), ((5.0, 75.0, 627.5), ), ((5.0, -37.5, 
+    680.0), ), ((-5.0, -75.0, 627.5), ), ((2.5, -75.0, 680.0), ), ((100.0, 
+    100.0, 627.5), ), ((100.0, 88.75, 680.0), ), ((15.0, 85.0, 627.5), ), ((
+    5.761205, 78.826834, 680.0), ), ((-5.0, 75.0, 627.5), ), ((2.5, 75.0, 
+    680.0), ), ((53.826834, 100.0, 670.761205), ), ((90.0, 100.0, 680.0), ), ((
+    15.0, 88.75, 680.0), ), ((-15.0, 100.0, 627.5), ), ((7.5, 100.0, 680.0), ), 
+    ((-15.0, 88.75, 680.0), ), ((-46.173166, 100.0, 670.761205), ), ((15.0, 
+    -100.0, 872.5), ), ((-7.5, -100.0, 820.0), ), ((-100.0, -100.0, 837.5), ), 
+    ((-15.0, -85.0, 837.5), ), ((-23.75, -85.0, 820.0), ), ((-5.0, -75.0, 
+    837.5), ), ((-5.761205, -78.826834, 820.0), ), ((53.826834, 85.0, 
+    829.238795), ), ((100.0, 85.0, 837.5), ), ((-5.0, 75.0, 837.5), ), ((-5.0, 
+    37.5, 820.0), ), ((-15.0, 85.0, 837.5), ), ((-11.173166, 84.238795, 820.0), 
+    ), ((-70.0, 100.0, 820.0), ), ((-100.0, 100.0, 837.5), ), ((-15.0, 88.75, 
+    820.0), ), ((-15.0, -96.25, 820.0), ), ((100.0, -96.25, 820.0), ), ((87.5, 
+    -85.0, 820.0), ), ((2.5, -75.0, 820.0), ), ((11.173166, -84.238795, 820.0), 
+    ), ((2.5, 75.0, 820.0), ), ((5.0, -37.5, 820.0), ), ((15.0, 88.75, 820.0), 
+    ), ((5.761205, 78.826834, 820.0), ), ((7.5, 100.0, 820.0), ), ((-33.75, 
+    85.0, 820.0), ), ((-40.0, 96.25, 820.0), ), ((60.0, 96.25, 820.0), ), ((
+    100.0, 88.75, 820.0), ), ((-100.0, 96.25, 820.0), ), ((-100.0, -100.0, 
+    767.5), ), ((15.0, -100.0, 802.5), ), ((100.0, -85.0, 837.5), ), ((-15.0, 
+    -85.0, 767.5), ), ((-23.75, -85.0, 750.0), ), ((-5.0, -75.0, 767.5), ), ((
+    -5.761205, -78.826834, 750.0), ), ((5.0, -75.0, 837.5), ), ((-5.0, 75.0, 
+    767.5), ), ((-5.0, 37.5, 750.0), ), ((5.0, -75.0, 767.5), ), ((2.5, -75.0, 
+    750.0), ), ((5.0, 75.0, 837.5), ), ((-15.0, 85.0, 767.5), ), ((-11.173166, 
+    84.238795, 750.0), ), ((5.0, 75.0, 767.5), ), ((2.5, 75.0, 750.0), ), ((
+    15.0, 100.0, 837.5), ), ((7.5, 100.0, 750.0), ), ((53.826834, 100.0, 
+    810.761205), ), ((100.0, 100.0, 767.5), ), ((87.5, 100.0, 750.0), ), ((
+    -40.761205, 85.0, 816.173166), ), ((-46.173166, 85.0, 829.238795), ), ((
+    -100.0, 100.0, 767.5), ), ((-23.75, -85.0, 680.0), ), ((-5.761205, 
+    -78.826834, 680.0), ), ((-7.5, -100.0, 680.0), ), ((-5.0, 37.5, 680.0), ), 
+    ((-11.173166, 84.238795, 680.0), ), ((21.25, 85.0, 680.0), ), ((-100.0, 
+    96.25, 680.0), ), ((-100.0, -100.0, 697.5), ), ((100.0, -85.0, 697.5), ), (
+    (100.0, -96.25, 750.0), ), ((15.0, -100.0, 732.5), ), ((-7.5, -100.0, 
+    750.0), ), ((-15.0, -85.0, 697.5), ), ((-15.0, -96.25, 750.0), ), ((87.5, 
+    -85.0, 750.0), ), ((5.0, -75.0, 697.5), ), ((11.173166, -84.238795, 750.0), 
+    ), ((-5.0, 75.0, 697.5), ), )+\
+    mdb.models['Model-1'].parts['Column'].edges.findAt(((-15.0, 85.0, 697.5), 
+    ), ((-15.0, 88.75, 750.0), ), ((5.0, 75.0, 697.5), ), ((5.0, -37.5, 750.0), 
+    ), ((15.0, 85.0, 697.5), ), ((5.761205, 78.826834, 750.0), ), ((100.0, 
+    100.0, 697.5), ), ((40.761205, 85.0, 683.826834), ), ((-100.0, 85.0, 
+    627.5), ), ((-41.25, 85.0, 750.0), ), ((100.0, 88.75, 750.0), ), ((100.0, 
+    -85.0, 767.5), ), ((-53.826834, 100.0, 689.238795), ), ((-100.0, 100.0, 
+    697.5), ), ((-5.0, -75.0, 697.5), ), ((15.0, 85.0, 767.5), ), ), 
+    minSizeFactor=0.1, size=6.0)
+mdb.models['Model-1'].parts['Column'].generateMesh()
+
+print("yooooo")
+
+#seeding the bolt 
+mdb.models['Model-1'].parts['Bolt'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=2.0)
+mdb.models['Model-1'].parts['Bolt'].generateMesh()
+
+#
+mdb.models['Model-1'].rootAssembly.Set(name='Set-1', referencePoints=(
+    mdb.models['Model-1'].rootAssembly.referencePoints[21], ))
+mdb.models['Model-1'].HistoryOutputRequest(createStepName='Loading_Step', name=
+    'H-Output-2', rebar=EXCLUDE, region=
+    mdb.models['Model-1'].rootAssembly.sets['Set-1'], sectionPoints=DEFAULT, 
+    variables=('U1', 'U2', 'U3', 'UR1', 'UR2', 'UR3', 'UT', 'UR', 'RF1', 'RF2', 
+    'RF3', 'RM1', 'RM2', 'RM3', 'RT', 'RM', 'CF1', 'CF2', 'CF3', 'CM1', 'CM2', 
+    'CM3'))
+    
+    
+#running job 
+mdb.Job(atTime=None, contactPrint=OFF, description='', echoPrint=OFF, 
+    explicitPrecision=SINGLE, getMemoryFromAnalysis=True, historyPrint=OFF, 
+    memory=90, memoryUnits=PERCENTAGE, model='Model-1', modelPrint=OFF, 
+    multiprocessingMode=DEFAULT, name='Job-1', nodalOutputPrecision=SINGLE, 
+    numCpus=1, numGPUs=0, queue=None, resultsFormat=ODB, scratch='', type=
+    ANALYSIS, userSubroutine='', waitHours=0, waitMinutes=0)
+mdb.models['Model-1'].parts['Column'].sectionAssignments[0].setValues(region=
+    Region(cells=mdb.models['Model-1'].parts['Column'].cells))
+    
+mdb.models['Model-1'].parts['Column'].sectionAssignments[0].setValues(region=
+    Region(
+    cells=mdb.models['Model-1'].parts['Column'].cells.getSequenceFromMask(
+    mask=('[#ffffffff:2 #3 ]', ), )))
+ 
+
+  
+
+mdb.jobs['Job-1'].submit(consistencyChecking=OFF)
+
+# TO WAIT FOR JOB COMPLETION
+
+
+mdb.jobs['Job-1'].waitForCompletion()
+print("Connections Model finished running")
+
+CurrentDir = os.getcwd()
+odb = session.openOdb(CurrentDir + '/Job-1.odb')
+NrOfSteps = len(odb.steps['Loading_Step'].frames)
+
+opFile = CurrentDir +'/'+'DatainExcel.csv'  
+try:
+    opFileU = open(opFile,'w')
+    opFileU.write("%10s,%10s\n"%('Force', 'U2') )
+except IOError:
+    PrintToScreen('cannot open opFILE')
+    exit(0)
+    
+for i in range(NrOfSteps):
+    displacement = odb.steps['Loading_Step'].historyRegions['Node ASSEMBLY.1'].historyOutputs['U2'].data[i][1]
+    force = odb.steps['Loading_Step'].historyRegions['Node ASSEMBLY.1'].historyOutputs['RF2'].data[i][1]
+    opFileU.write("%10f,%10f\n" % (force, displacement))
+opFileU.close()   
+
+
+#print(odb.steps['Loading_Step'].historyRegions) once error appears and put answer to replace zero on force. + displacement?
+
+
+
+
+# #This prints all the displacements and squares them inside the combined list
+# for i in node_table:
+    # bbbbbbb = 
+    # for j in range(NrOfSteps):
+        # VerticalDisp[j][1] = VerticalDisp[j][1] + bbbbbbb[j][1]**2.0
+
+
+
+
+# VerticalDisp = []
+    # for i in range(NrOfSteps):
+        # VerticalDisp.append([0.0, 0.0])
+
+    # #This prints all the displacements and squares them inside the combined list
+    # for i in node_table:
+        # bbbbbbb = odb.steps['Step-1'].historyRegions['Node I_SECTION-1.%s'%i[0]].historyOutputs['%s'%i[1]].data
+        # for j in range(NrOfSteps):
+            # VerticalDisp[j][1] = VerticalDisp[j][1] + bbbbbbb[j][1]**2.0
+        # SaveInExcel(NewFolderprincipal_1, 'Node_%s_%s_Job-2' % (i[0],i[1]), bbbbbbb, Forces)
+        # MakePlot("Plot_Node_%s_%s_Job-2" % (i[0],i[1]), bbbbbbb, Forces)
+        
+
+ 
+
+# displacements = []
+ 
+# # odb.steps['Step-1'].frames[i].fieldOutputs['U'].values[2].data[1]
+ 
+# # odb.steps['Step-1'].historyRegions['Node I_SECTION-1.%s'%i[0]].historyOutputs['%s'%i[1]].data
+ 
+# for i in range(NrOfSteps):
+    # central_disp = odb.steps['Step-1'].frames[i].fieldOutputs['U'].values[2].data[1]*-1
+    # displacements.append(central_disp)
+ 
+# Forces = []
+ 
+# for i in range(NrOfSteps):
+    # for j in odb.steps['Step-1'].historyRegions.keys():
+        # applied_force = 0.0
+        # applied_force = applied_force + odb.steps['Step-1'].historyRegions[j].historyOutputs['RF2'].data[2][1]
+        # # applied_force = odb.steps['Step-1'].frames[i].fieldOutputs['CF'].values[1].data[1]*-1
+    # Forces.append(applied_force)
+# has context menu
+
+
+
+
+ 
+ 
+ 
